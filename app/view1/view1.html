@@ -1,0 +1,10 @@
+<p>This is the partial for view 1.</p>
+
+<ul class="courses">
+  <li ng-repeat="(name, val) in simple_system.params" class="thumbnail">
+    {{name}} = <input ng-class="{warn:inArray(simple_system.latest_defined, name)}" type="text" ng-model="simple_system.params[name]" ng-change="simple_system.define(name)" smart-float />
+  </li>
+  
+   <a ng-click='simple_system.calculate()' >click me</a>
+
+</ul>
