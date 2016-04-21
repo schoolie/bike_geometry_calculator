@@ -2,6 +2,17 @@
 var simple_system = {};
 
 simple_system.init = function() {
+  
+  this.defined = [];
+  this.latest_defined = [];
+  
+  this.define = function(name) {
+    console.log(name);
+    this.defined.push(name);
+  };
+    
+  this.inputs_required = 2;      
+  
   this.params = {
     a: undefined,
     b: undefined,
@@ -9,20 +20,9 @@ simple_system.init = function() {
     d: undefined
   };
   
-  this.defined = [];
-  this.latest_defined = [];
-  
-  this.in_req = 2;
-  console.log(this.params);
-      
-  this.define = function(name) {
-    console.log(name);
-    this.defined.push(name);
-  };
-  
   this.calculate = function() {
     var l = this.defined.length;
-    this.latest_defined = this.defined.slice(l-this.in_req,l);
+    this.latest_defined = this.defined.slice(l-this.inputs_required,l);
       
     console.log(this.latest_defined);
     if (false) {
@@ -53,7 +53,7 @@ simple_system.init = function() {
       this.params.d = this.params.c;
     }
     
-    else if (this.latest_defined.length < this.in_req) {
+    else if (this.latest_defined.length < this.inputs_required) {
       console.log(this.latest_defined);
       alert('Not enough defined');
       
@@ -80,10 +80,3 @@ simple_system.init = function() {
     }
   };
 };
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-

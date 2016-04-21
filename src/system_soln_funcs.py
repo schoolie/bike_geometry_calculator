@@ -223,84 +223,85 @@ def write_soln_func(var_names=[], constant_names=[], input_vars=[], soln_vars=[]
             
     print('equation_systems\%s.py written' % module_name)
 
-if __name__ == '__main__':
-
-    # Tooth Height System
-
-    var_names = [
-                 'stack',
-                 'reach',
-                 'ht_top_to_ground',
-                 'wheel_diameter',
-                 'wheel_radius',
-                 'crank_arm_length',
-                 'front_center',
-                 'chainstay_length',
-                 'bb_drop',
-                 'wheelbase',
-                 'front_wheelbase',
-                 'rear_wheelbase',
-                 'bb_height',
-                 'pedal_clearance',
-                 'seat_tube_angle',
-                 'head_tube_angle',
-                 'head_tube_length',
-                 'lower_hs_stack',
-                 'effective_top_tube',
-                 'fork_a_c',
-                 'fork_offset',
-                 'fork_length',
-                 'ground_trail',
-                 'mech_trail',
-                 'crown_to_steering_axis_intersection',
-                 'seat_tube_length',
-                 'saddle_height',
-                 'saddle_extension',
-                ]
+def write_soln_func_js(var_names=[], constant_names=[], input_vars=[], soln_vars=[], solns=[], module_name='temp_equations', thickness_mod=False):
+    with open('equation_systems\%s.js' % module_name, 'wb') as new_file:
+        print("var {} = {{}};".format(module_name), file=new_file)
+        print("", file=new_file)
+        print("{}.init = function() {{".format(module_name), file=new_file)
+        print("  this.defined = [];", file=new_file)
+        print("  this.latest_defined = [];", file=new_file)
+        print("", file=new_file)
+        print("  this.define = function(name) {", file=new_file)
+        print("    this.defined.push(name);", file=new_file)
+        print("  };", file=new_file)
+        print("", file=new_file)
+        print("  this.inputs_required = {};".format(len(soln_vars[0])), file=new_file)  
+        print("", file=new_file)
         
-    input_names = [
-                 'stack',
-                 'reach',
-                 # 'ht_top_to_ground',
-                 'wheel_diameter',
-                 # 'wheel_radius',
-                 # 'crank_arm_length',
-                 'front_center',
-                 'chainstay_length',
-                 'bb_drop',
-                 'wheelbase',
-                 # 'front_wheelbase',
-                 # 'rear_wheelbase',
-                 # 'bb_height',
-                 # 'pedal_clearance',
-                 'seat_tube_angle',
-                 'head_tube_angle',
-                 'head_tube_length',
-                 'lower_hs_stack',
-                 'effective_top_tube',
-                 'fork_a_c',
-                 'fork_offset',
-                 # 'fork_length',
-                 # 'ground_trail',
-                 # 'mech_trail',
-                 # 'crown_to_steering_axis_intersection',
-                 'seat_tube_length',
-                 'saddle_height',
-                 # 'saddle_extension',
-                ]
-                
-    bad_combinations = [
-                        ['wheelbase', 'front_wheelbase', 'rear_wheelbase'],
-                        ['front_center', 'chainstay_length', 'bb_drop', 'wheelbase'],
-                        ['front_wheelbase', 'bb_drop', 'front_center'],
-                        ['rear_wheelbase', 'bb_drop', 'chainstay_length'],
-                       ]
-                
-    equations = [
-                 sp.Eq(stack, (crown_to_steering_axis_intersection + head_tube_length + lower_hs_stack)*sp.sin(head_tube_angle*to_rad)-bb_height),
-                 sp.Eq(reach, (front_wheelbase+ground_trail)-(crown_to_steering_axis_intersection + head_tube_angle + lower_hs_stack)*sp.cos(head_tube_angle*to_rad)),
-                 sp.Eq(ht_top_to_ground, stack+bb_height),
-                 sp.Eq(effective_top_tube, stack * sp.tan((90-seat_tube_angle)*to_rad) + reach),
-                 sp.Eq(saddle_extension, saddle_height - seat_tube_length),
-                ]
-                
+        print("  this.params = {", file=new_file)
+        for var in var_names:
+            print("    {}: undefined,".format(var), file=new_file)
+        print("  };", file=new_file)
+            
+        print("", file=new_file)
+        print("  this.calculate = function() {", file=new_file)
+        print("    var l = this.defined.length;", file=new_file)
+        print("    this.latest_defined = this.defined.slice(l-this.inputs_required,l);", file=new_file)
+                  
+
+        print("", file=new_file)
+        print("    if (false) {", file=new_file)
+        print("    }", file=new_file)
+
+
+        for input_var, soln_var, soln in zip(input_vars, soln_vars, solns):
+            soln = soln[0]
+            
+            print("    else if (isEqArrays(this.latest_defined, [", file=new_file, end='')
+            for var in input_var:
+                print("'{}', ".format(var), file=new_file, end='')
+            print("])) {", file=new_file)
+            
+            # print("      console.log(this.latest_defined);", file=new_file)
+            for var in soln.keys():
+                print('      ' + print_equation(var, soln, var_names), file=new_file)
+            
+            print("    }", file=new_file)
+        end = """    
+    else if (this.latest_defined.length < this.inputs_required) {
+      console.log(this.latest_defined);
+      alert('Not enough defined');
+      
+      for (var name in this.params) {
+        if (this.params.hasOwnProperty(name)) {
+          if (!inArray(this.latest_defined, name)) {
+            this.params[name] = undefined;
+          }
+        }
+      };
+    }
+    
+    else {
+      console.log(this.latest_defined);
+      alert('Conflicting Inputs');
+      
+      for (var name in this.params) {
+        if (this.params.hasOwnProperty(name)) {
+          if (!inArray(this.latest_defined, name)) {
+            this.params[name] = undefined;
+          }
+        }
+      };
+    }
+  };
+};"""
+        print(end, file=new_file)
+        
+    print('equation_systems\%s.js written' % module_name)
+
+def print_equation(var, soln, var_names):
+    equation = soln[var]
+    result = '{var} = {equation}'.format(var=var, equation=equation)
+    for name in var_names:
+        result = result.replace(name, 'this.params.{}'.format(name))
+    return result

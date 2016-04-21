@@ -35,7 +35,7 @@ angular.module('myApp.view1', ['ngRoute'])
 .controller('View1Ctrl', ['$scope', function($scope) {
     
   $scope.inArray = inArray;
-  $scope.simple_system = simple_system;
+  $scope.simple_system = bb_height_eqns;
   $scope.simple_system.init();
   
 }]);
